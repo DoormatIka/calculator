@@ -23,13 +23,14 @@ const (
 	BANG
 	BAR
 	NUMBER
-	PRINT 
-	ROOT 
 	SEMICOLON
 	COMMA
 	IDENTIFIER
 	EQUALS
 	EOF
+
+	PRINT 
+	ROOT 
 )
 
 func (t TokenType) String() string {
@@ -107,7 +108,6 @@ func newTokenizeError(msg string) *TokenizeError {
 
 func (t *Tokenizer) Parse() (*[]Token, error) {
 	for (!t.is_at_end()) {
-		fmt.Printf("Current: %v\n", t.current);
 		t.start = t.current;
 		char := t.advance();
 		switch char {
@@ -135,17 +135,30 @@ func (t *Tokenizer) Parse() (*[]Token, error) {
 				if err != nil {
 					return nil, err;
 				}
-			} 
-			/*
-			else if t.is_alpha(char) {
-
+			} else if t.is_alpha(char) {
+				t.identifier();
 			}
-			*/
 		}
 	}
 	return &t.tokens, nil;
 }
 
+func (t *Tokenizer) identifier() {
+	for (t.is_alphanumeric(t.peek())) {
+		t.advance();
+	}
+	text := t.str[t.start:t.current];
+	switch text {
+	case "p":
+		t.add_token(PRINT, nil);
+		break;
+	case "root":
+		t.add_token(ROOT, nil);
+		break;
+	default:
+		t.add_token(IDENTIFIER, nil);
+	}
+}
 
 func (t *Tokenizer) number() (error) {
 	for t.is_digit(t.peek()) {
@@ -157,7 +170,6 @@ func (t *Tokenizer) number() (error) {
 			t.advance();
 		}
 	}
-	fmt.Printf("ParseFloat: %v\n", t.str[t.start:t.current]);
 	num, err := strconv.ParseFloat(t.str[t.start:t.current], 64);
 	if err == nil {
 		t.add_token(NUMBER, &num);
@@ -174,21 +186,28 @@ func (t *Tokenizer) is_alpha(char byte) bool {
 		(char >= 'A' && char <= 'Z') || 
 		char == '_';
 }
+func (t *Tokenizer) is_alphanumeric(char byte) bool {
+	return t.is_alpha(char) || t.is_digit(char);
+}
 
 func (t *Tokenizer) is_at_end() bool {
 	return t.current >= uint32(len(t.str));
 }
 func (t *Tokenizer) advance() byte {
 	c := t.current;
-	if t.is_at_end() { // the problem.
-		t.current += 1;
-	}
+	t.current += 1;
 	return t.str[c];
 }
 func (t *Tokenizer) peek() byte {
+	if t.is_at_end() {
+		return byte(0);
+	}
 	return t.str[t.current];
 }
 func (t *Tokenizer) peek_next() byte {
+	if t.is_at_end() {
+		return byte(0);
+	}
 	return t.str[t.current + 1];
 }
 func (t *Tokenizer) add_token(token_type TokenType, literal *float64) {
