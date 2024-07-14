@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type TokenType int16;
+type TokenType int8;
 type Token struct {
 	Type TokenType
 	Value string
@@ -36,9 +36,9 @@ const (
 func (t TokenType) String() string {
 	switch t {
 	case LEFT_PAREN:
-		return "LeftParen"
+		return "LParen"
 	case RIGHT_PAREN:
-		return "RightParen"
+		return "RParen"
 	case DOT:
 		return "Dot"
 	case MINUS:
