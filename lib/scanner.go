@@ -1,5 +1,5 @@
-package lib
 
+package lib;
 import (
 	"fmt"
 	"strconv"
@@ -8,7 +8,7 @@ import (
 type TokenType int8;
 type Token struct {
 	Type TokenType
-	Value string
+	Text string
 	Literal *float64
 }
 const (
@@ -33,8 +33,8 @@ const (
 	ROOT 
 )
 
-func (t TokenType) String() string {
-	switch t {
+func (t *TokenType) String() string {
+	switch *t {
 	case LEFT_PAREN:
 		return "LParen"
 	case RIGHT_PAREN:
@@ -213,7 +213,7 @@ func (t *Tokenizer) peek_next() byte {
 func (t *Tokenizer) add_token(token_type TokenType, literal *float64) {
 	token := Token {
 		Type: token_type,
-		Value: t.str[t.start:t.current],
+		Text: t.str[t.start:t.current],
 		Literal: literal,
 	};
 	t.tokens = append(t.tokens, token);
